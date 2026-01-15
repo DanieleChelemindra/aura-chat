@@ -1,16 +1,34 @@
 import curses
+import platform
 import subprocess
 import sys
 import os
 
+
+
 def apri_nuovo_terminale(nomeScript):
-    comando = f'''
-    tell application "Terminal"
-        do script "cd '{os.getcwd()}' && python3 {nomeScript}"
-        activate
-    end tell
-    '''
-    subprocess.Popen(["osascript", "-e", comando])
+    sistema = platform.system()
+
+    if sistema == "Windows":
+        subprocess.Popen(
+            ["cmd", "/k", f"python {nomeScript}"],
+            creationflags=subprocess.CREATE_NEW_CONSOLE
+        )
+    elif sistema == "darwin":  # macOS
+        subprocess.Popen(
+            ["open", "-a", "Terminal.app", nomeScript]
+        )
+    else:  # Linux e altri sistemi Unix-like
+        subprocess.Popen(
+            ["x-terminal-emulator", "-e", f"python3 {nomeScript}"]
+        )
+
+
+
+
+
+
+
 
 def comunicazione(stdscr):
     curses.curs_set(0)
