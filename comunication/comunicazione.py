@@ -11,7 +11,7 @@ def apri_nuovo_terminale(nomeScript):
 
     if sistema == "Windows":
         subprocess.Popen(
-            ["cmd", "/k", f"python {nomeScript}"],
+            ["cmd", "/k", f"python comunication/{nomeScript}"],
             creationflags=subprocess.CREATE_NEW_CONSOLE
         )
     elif sistema == "darwin":  # macOS
@@ -22,8 +22,6 @@ def apri_nuovo_terminale(nomeScript):
         subprocess.Popen(
             ["x-terminal-emulator", "-e", f"python3 {nomeScript}"]
         )
-
-
 
 
 
