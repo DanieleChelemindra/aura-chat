@@ -1,2 +1,2 @@
 Per avviare il file main bisogna scaricare la libreria curses
-``` pip install windows-curses ```
+```bash pip install windows-curses ```
