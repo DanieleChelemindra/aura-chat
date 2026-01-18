@@ -4,5 +4,5 @@ comandi utili per errori server line: 54, 28
 lsof -nP -iUDP:*porta*
 ```
 ```bash
-kill -9
+kill -9 *pid*
 ```
