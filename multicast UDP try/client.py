@@ -1,26 +1,45 @@
 import socket
-
-
+import json
+import threading
 
 PORTA_DISCOVERY = 50000
 MULTICAST_GROUP = "239.255.0.1"
-MESSAGGIO = "CERCASI_AURASERVER"
-TIMEOUT = 5
 
-def scopri_server():
+def ricevi(sock):
+    while True:
+        try:
+            data = sock.recv(1024)
+            print(data.decode())
+        except:
+            break
+
+
+def scopri_e_connetti():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-    sock.settimeout(TIMEOUT)
+    sock.sendto(b"PAIRING_REQUEST", (MULTICAST_GROUP, PORTA_DISCOVERY))
 
-    sock.sendto(MESSAGGIO.encode(), (MULTICAST_GROUP, PORTA_DISCOVERY))
-    print("Richiesta multicast inviata...")
+    data, _ = sock.recvfrom(1024)
+    risposta = json.loads(data.decode())
 
-    try:
-        data, addr = sock.recvfrom(1024)
-        print("Server trovato:", data.decode(), "da", addr)
-    except socket.timeout:
-        print("Nessun server trovato")
+    server_ip = risposta["server_ip"]
+    tcp_port = risposta["tcp_port"]
 
-    sock.close()
+    nome = input("Inserisci il tuo nome: ")
+
+    tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    tcp.connect((server_ip, tcp_port))
+
+    tcp.sendall(json.dumps({
+        "type": "REGISTER",
+        "name": nome
+    }).encode())
+
+    threading.Thread(target=ricevi, args=(tcp,), daemon=True).start()
+
+    while True:
+        msg = input()
+        tcp.sendall(msg.encode())
+
 
 if __name__ == "__main__":
-    scopri_server()
+    scopri_e_connetti()
