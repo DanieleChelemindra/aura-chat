@@ -2,7 +2,7 @@ import socket
 import json
 import threading
 
-SERVER_IP = "INSERISCI_IP_DEL_SERVER"
+SERVER_IP = input("inserisci IP server")
 PORTA_TCP = 60000
 
 def ricevi(sock):

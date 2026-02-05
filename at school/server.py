@@ -8,6 +8,15 @@ UTENTI_FILE = "clients.json"
 
 client_connessi = {}
 
+def get_local_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+    finally:
+        s.close()
+    return ip
+
 def carica_client():
     if os.path.exists(UTENTI_FILE):
         with open(UTENTI_FILE, "r") as f:
@@ -28,6 +37,7 @@ def gestisci_client(conn, addr, db):
             client_connessi[conn] = nome
             db[addr[0]] = nome
             salva_client(db)
+            print(f"{nome} connesso")
 
         while True:
             msg = conn.recv(1024)
@@ -37,7 +47,7 @@ def gestisci_client(conn, addr, db):
             testo = msg.decode()
             mittente = client_connessi.get(conn, "Sconosciuto")
 
-            for c in client_connessi:
+            for c in list(client_connessi):
                 if c != conn:
                     c.sendall(f"{mittente}: {testo}".encode())
     finally:
@@ -46,11 +56,14 @@ def gestisci_client(conn, addr, db):
 
 def tcp_server():
     db = carica_client()
+    ip = get_local_ip()
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server.bind(("0.0.0.0", PORTA_TCP))
     server.listen()
+
+    print(f"SERVER ATTIVO SU {ip}:{PORTA_TCP}")
 
     while True:
         conn, addr = server.accept()
